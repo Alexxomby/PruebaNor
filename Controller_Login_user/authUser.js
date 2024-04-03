@@ -91,6 +91,7 @@ exports.IniciarSesionUsuario = async (req, res)=>{
         console.log(error)
     }
 }
+//https://chat.openai.com/share/016ea8e8-d7f7-4a18-9c0a-5f163dbfc1fa
 
 exports.isAuthenticated = async (req, res, next) => {
     if (req.cookies.jwt) {
