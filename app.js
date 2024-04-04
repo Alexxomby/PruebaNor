@@ -1,6 +1,8 @@
 const express = require('express')
 const dotenv = require('dotenv')
 
+const cookieParser = require('cookie-parser')
+
 const app = express()
 
 //seteamos el motor de plantillas
@@ -18,6 +20,10 @@ app.use(express.json())
 //seteamos las variables de entorno
 dotenv.config({ path: './env/.env' })
 
+
+
+//para poder trabajar con las cookies
+app.use(cookieParser())
 
 //llamar al router
 //app.use('/', require('./routes/router'))

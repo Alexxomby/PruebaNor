@@ -17,6 +17,10 @@ router.get('/Login', (req, res)=>{
     res.render('login_usuario', {alert:false})
 })
 
+router.get('/Logindos', (req, res)=>{
+    res.render('login2', {alert:false})
+})
+
 router.get('/Vista', (req, res)=>{
     res.render('vista_usuario', {alert:false})
 })
@@ -34,7 +38,10 @@ router.get('/loginBien', (req, res)=>{
 
 //los metodos que le estamos danto a los forms 
 router.post('/register', MetodosUser.registrarUsuario)
-router.post('/login', MetodosUser.IniciarSesionUsuario )
+router.post('/login', MetodosUser.IniciarSesionUsuario)
+
+router.post('/login2', MetodosUser.IniciarSesionUsuario2 )
+
 
 
 module.exports = router
