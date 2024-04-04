@@ -1,5 +1,6 @@
 const conexion = require('../Database/db');
 const { promisify } = require('util');
+const bcryptjs = require('bcryptjs')
 
 // Convierte la función query en una función que devuelve una promesa
 const queryAsync = promisify(conexion.query).bind(conexion);
@@ -12,9 +13,11 @@ exports.registrarUsuario = async (req, res)=>{
         const pass = req.body.pass;
         const appat = req.body.appat; 
         const apmat = req.body.apmat;
+
+        let passHash = await bcryptjs.hash(pass, 8) 
          
         // Insertar los datos de acceso
-        await queryAsync('INSERT INTO datosa (CorreoA, PassA) VALUES (?, ?)', [user, pass]);
+        await queryAsync('INSERT INTO datosa (CorreoA, PassA) VALUES (?, ?)', [user, passHash]);
 
         // Obtener el ID generado automáticamente
         const resultsAcceso = await queryAsync('SELECT LAST_INSERT_ID() AS idAcceso');
@@ -54,13 +57,11 @@ exports.IniciarSesionUsuario = async (req, res) => {
                 ruta: 'Login'
             });
         }
-
-
           // Obtener el ID de usuario y el ID de datos de acceso
           const userId = results[0].id;
         const datosAccesoId = results[0].idDatosA;
         console.log(datosAccesoId)
-        res.render('Login', {
+        res.render('Login_usuario', {
             alert: true,
             alertTitle: "Conexión exitosa",
             alertMessage: "¡LOGIN CORRECTO!",
