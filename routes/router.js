@@ -25,9 +25,16 @@ router.get('/postRegistro', (req, res)=>{
     res.render('postr', {alert:false})
 })
 
+//vista_usuario
+router.get('/loginBien', (req, res)=>{
+    res.render('vista_usuario', {alert:false})
+})
+
+
 
 //los metodos que le estamos danto a los forms 
 router.post('/register', MetodosUser.registrarUsuario)
+router.post('/login', MetodosUser.IniciarSesionUsuario )
 
 
 module.exports = router

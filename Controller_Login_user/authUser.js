@@ -33,64 +33,48 @@ exports.registrarUsuario = async (req, res)=>{
 }
 
 
-exports.IniciarSesionUsuario = async (req, res)=>{
+exports.IniciarSesionUsuario = async (req, res) => {
     try {
         const user1 = req.body.user
-        const pass1 = req.body.pass        
+        const pass1 = req.body.pass
 
-        if(!user1 || !pass1 ){
-            res.render('login',{
-                alert:true,
-                alertTitle: "Advertencia",
-                alertMessage: "Ingrese un usuario y password",
-                alertIcon:'info',
+        // Consultar el usuario y la contraseña en la base de datos
+        const results = await queryAsync('SELECT idDatosA   , idDatosA FROM datosa WHERE CorreoA = ? AND PassA = ?', [user1, pass1]);
+
+
+        if (results.length === 0) {
+            // Si no se encuentra un usuario con las credenciales proporcionadas, retornar un mensaje de error
+            return res.render('login_usuario', {
+                alert: true,
+                alertTitle: "Error",
+                alertMessage: "Usuario y/o contraseña incorrectos",
+                alertIcon: 'error',
                 showConfirmButton: true,
-                timer: false,
-                ruta: 'login'
-            })
-        }else{
-            conexion.query('SELECT * FROM users WHERE user = ?', [user1], async (error, infoe)=>{
-                if( infoe.length == 0 || ! (await bcryptjs.compare(pass1, infoe[0].pass)) ){
-                    res.render('login', {
-                        alert: true,
-                        alertTitle: "Error",
-                        alertMessage: "Usuario y/o Password incorrectas",
-                        alertIcon:'error',
-                        showConfirmButton: true,
-                        timer: false,
-                        ruta: 'login'    
-                    })
-                }else{
-                    //inicio de sesión OK
-                    const id = infoe[0].id
-                    const token = jwt.sign({id:id}, process.env.JWT_SECRETO, {
-                        expiresIn: process.env.JWT_TIEMPO_EXPIRA
-                    })
-                    //generamos el token SIN fecha de expiracion
-                   //const token = jwt.sign({id: id}, process.env.JWT_SECRETO)
-                   console.log("TOKEN: "+token+" para el USUARIO : "+user1)
-
-                   const cookiesOptions = {
-                        expires: new Date(Date.now()+process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000),
-                        httpOnly: true
-                   }
-                   res.cookie('jwt', token, cookiesOptions)
-                   res.render('login', {
-                        alert: true,
-                        alertTitle: "Conexión exitosa",
-                        alertMessage: "¡LOGIN CORRECTO!",
-                        alertIcon:'success',
-                        showConfirmButton: false,
-                        timer: 800,
-                        ruta: ''
-                   })
-                }
-            })
+                timer: 1000,
+                ruta: 'Login'
+            });
         }
+
+
+          // Obtener el ID de usuario y el ID de datos de acceso
+          const userId = results[0].id;
+        const datosAccesoId = results[0].idDatosA;
+        console.log(datosAccesoId)
+        res.render('Login', {
+            alert: true,
+            alertTitle: "Conexión exitosa",
+            alertMessage: "¡LOGIN CORRECTO!",
+            alertIcon:'success',
+            showConfirmButton: false,
+            timer: 800,
+            ruta: 'loginBien'
+       })
+
     } catch (error) {
         console.log(error)
     }
 }
+
 //https://chat.openai.com/share/016ea8e8-d7f7-4a18-9c0a-5f163dbfc1fa
 
 exports.isAuthenticated = async (req, res, next) => {
