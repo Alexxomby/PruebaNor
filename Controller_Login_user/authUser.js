@@ -118,15 +118,18 @@ exports.IniciarSesionUsuario2 = async (req, res) => {
 
 
         // Generar el token JWT con más información del usuario
-        const token = jwt.sign({ idDatosG: Id_usuario, NombreG: nom_usuario }, process.env.JWT_SECRETO, {
+        const token = jwt.sign({ idDatosG: Id_usuario, NombreG: nom_usuario, idDatosA:userId }, process.env.JWT_SECRETO, {
             expiresIn: process.env.JWT_COOKIE_EXPIRES
-
         });
+        console.log(token+' tokensin')
 
         // Enviar el token JWT al cliente
         res.cookie('jwt', token, {
             expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000),
-            httpOnly: true
+            httpOnly: true,
+            sameSite: 'None', // Agrega este atributo para solucionar el mensaje de advertencia
+            secure: true // Asegúrate de que la cookie solo se envíe a través de conexiones HTTPS
+        
         });
 
         // Redirigir al usuario a una página de inicio o dashboard después de iniciar sesión
@@ -147,18 +150,61 @@ exports.IniciarSesionUsuario2 = async (req, res) => {
 };
 
 //https://chat.openai.com/share/016ea8e8-d7f7-4a18-9c0a-5f163dbfc1fa
-
+/*
 exports.isAuthenticated = async (req, res, next) => {
     if (req.cookies.jwt) {
         try {
-            const decodificada = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRETO);
-            conexion.query('SELECT user FROM users WHERE id = ?', [decodificada.id], (error, infoe) => {
+            //aqui pues nos descencriptamos la cuki para poder leerla obviamente
+            const cookieusuarioDeco = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRETO);
+            console.log(cookieusuarioDeco)
+
+                   //aqui tengo la duda de que es lo que le esoy pasando es decodificada.mi variable o lo que le pase a la va
+            conexion.query('SELECT idDatosG * FROM datosg WHERE idDatosA = ?', [cookieusuarioDeco.idDatosA], (error, resultsUser) => {
+                if (error) {
+                    console.log(error);
+                    return next();
+                    
+                }
+                if (resultsUser && resultsUser.length > 0) {
+                    //tengo duda aquio
+                    //ya, se supone que aqui le estoy pasando todo 
+                    //usuaro es como se llama mi objeto
+                    req.usuario = resultsUser[0];//le esoty pasando la primer linea
+                    console.log(resultsUser);
+                    console.log(cookieusuarioDeco);
+
+                }
+                return next();
+                
+            });
+        } catch (error) {
+            console.log(error);
+            return next();
+        }
+    } else {
+        res.redirect('/login')
+    }
+}*/
+
+exports.isAuthenticadosi = async (req, res, next) => {
+    console.log("Middleware de autenticación en ejecución");
+    if (req.cookies.jwt) {
+        try {
+            // Descifrar la cookie para obtener los datos del usuario
+            const cookieusuarioDeco = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRETO);
+            console.log(cookieusuarioDeco);
+
+            // Consultar la base de datos para obtener los datos del usuario
+            conexion.query('SELECT * FROM datosg WHERE idDatosA = ?', [cookieusuarioDeco.idDatosA], (error, resultsUser) => {
                 if (error) {
                     console.log(error);
                     return next();
                 }
-                if (infoe && infoe.length > 0) {
-                    req.user = infoe[0].user
+                if (resultsUser && resultsUser.length > 0) {
+                    // Asignar los datos del usuario a req.usuario
+                    req.usuario = resultsUser[0];
+                    console.log(req.usuario);
+                    console.log(cookieusuarioDeco);
                 }
                 return next();
             });
@@ -170,6 +216,7 @@ exports.isAuthenticated = async (req, res, next) => {
         res.redirect('/login')
     }
 }
+
 
 
 exports.logout = (req, res)=>{
