@@ -29,6 +29,9 @@ app.use(cookieParser())
 //app.use('/', require('./routes/router'))
 app.use('/', require('./routes/router'))
 
+app.use('/', require('./routes/routerUsuario'))
+
+
 
 app.listen(2029, ()=>{
     console.log('SERVER UP runnung in http://localhost:2029')
