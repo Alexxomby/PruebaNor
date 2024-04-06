@@ -213,7 +213,7 @@ exports.isAuthenticadosi = async (req, res, next) => {
             return next();
         }
     } else {
-        res.redirect('/login')
+        res.redirect('/noautenticado')
     }
 }
 
