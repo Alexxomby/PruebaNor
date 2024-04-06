@@ -216,7 +216,7 @@ exports.isAuthenticadosi = async (req, res, next) => {
         res.redirect('/noautenticado')
     }
 }
-
+//ahroa debemos crear los metodo para poder leer la info de la cuki
 
 
 exports.logout = (req, res)=>{
