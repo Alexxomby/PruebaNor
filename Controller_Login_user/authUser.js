@@ -119,16 +119,14 @@ exports.IniciarSesionUsuario2 = async (req, res) => {
 
         // Generar el token JWT con más información del usuario
         const token = jwt.sign({ idDatosG: Id_usuario, NombreG: nom_usuario, idDatosA:userId }, process.env.JWT_SECRETO, {
-            expiresIn: process.env.JWT_COOKIE_EXPIRES
+            //expiresIn: process.env.JWT_COOKIE_EXPIRES
         });
         console.log(token+' tokensin')
 
         // Enviar el token JWT al cliente
         res.cookie('jwt', token, {
-            expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000),
-            httpOnly: true,
-            sameSite: 'None', // Agrega este atributo para solucionar el mensaje de advertencia
-            secure: true // Asegúrate de que la cookie solo se envíe a través de conexiones HTTPS
+           // expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000),
+            httpOnly: true
         
         });
 
@@ -192,7 +190,7 @@ exports.isAuthenticadosi = async (req, res, next) => {
         try {
             // Descifrar la cookie para obtener los datos del usuario
             const cookieusuarioDeco = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRETO);
-            console.log(cookieusuarioDeco);
+            console.log(cookieusuarioDeco+' cuqui decodificada del metodo is autenticadosi');
 
             // Consultar la base de datos para obtener los datos del usuario
             conexion.query('SELECT * FROM datosg WHERE idDatosA = ?', [cookieusuarioDeco.idDatosA], (error, resultsUser) => {
@@ -202,9 +200,16 @@ exports.isAuthenticadosi = async (req, res, next) => {
                 }
                 if (resultsUser && resultsUser.length > 0) {
                     // Asignar los datos del usuario a req.usuario
+                    
                     req.usuario = resultsUser[0];
-                    console.log(req.usuario);
+
+                    console.log('codigo entre el req usuario')
+                    console.log(req.usuario)
+                    console.log('codifo entre el req usuario, me lo trae en json')
+
+                    console.log(req.usuario + ' sdel if si no es vacio el req.usuario');
                     console.log(cookieusuarioDeco);
+                    console.log('por laguna razon si le pongo texto al objeto solo imprime [object Object] sdel if si no es vacio el req.usuario ')
                 }
                 return next();
             });
@@ -222,4 +227,26 @@ exports.isAuthenticadosi = async (req, res, next) => {
 exports.logout = (req, res)=>{
     res.clearCookie('jwt')   
     return res.redirect('/')
+}
+
+exports.ObtenerInfo = async (req, res, next) => {
+    try {
+        const cookieusuarioDeco = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRETO);
+        console.log(cookieusuarioDeco+'primer tri cuqui deco');
+        
+        conexion.query('SELECT * FROM datosg WHERE idDatosA = ?', [cookieusuarioDeco.idDatosA], (error, resultsUser) => {
+
+            // Asignar los datos del usuario a req.usuario
+            usuario = resultsUser[0];
+            console.log(usuario+'esto es el usuario');
+            console.log(cookieusuarioDeco+'esto es la cuki');
+        
+        return next();
+        });
+
+
+    } catch (error) {
+        console.log(error+'error al obtener la info')
+    }
+    
 }

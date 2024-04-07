@@ -34,7 +34,7 @@ router.get('/noautenticado', (req, res)=>{
    // res.render('vista_usuario',{ usuario: req.NombreG } )
 //})
 
-router.get('/autenticado', MetodosUser.isAuthenticadosi, (req, res)=>{
+router.get('/autenticado', MetodosUser.isAuthenticadosi, MetodosUser.ObtenerInfo, (req, res)=>{
     res.render('pruebaveri', )
 })
 
