@@ -35,7 +35,7 @@ router.get('/noautenticado', (req, res)=>{
 //})
 
 router.get('/autenticado', MetodosUser.isAuthenticadosi, MetodosUser.ObtenerInfo, (req, res)=>{
-    res.render('pruebaveri', )
+    res.render('pruebaveri',{userejs:req.usuario} )
 })
 
 
